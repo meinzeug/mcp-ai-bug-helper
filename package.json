@@ -4,13 +4,13 @@
   "description": "MCP server that routes tough coding questions through OpenRouter coding advisors.",
   "main": "dist/server.js",
   "scripts": {
-    "prepare": "npm run build",
     "build": "tsc --pretty",
     "postbuild": "chmod +x dist/server.js || true",
     "dev": "tsx src/server.ts",
     "scenarios": "tsx scripts/run-scenarios.ts",
     "start": "node dist/server.js",
-    "typecheck": "tsc --noEmit --pretty"
+    "typecheck": "tsc --noEmit --pretty",
+    "prepublishOnly": "npm run build"
   },
   "bin": {
     "mcp-ai-bug-helper": "dist/server.js"
