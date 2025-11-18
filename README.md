@@ -82,6 +82,7 @@ npm run dev
 - 🤖 Für jeden Tag gibt es passende Modelle mit hinterlegten Stärken und Zuverlässigkeitsskalen (platinum/gold/silver).
 - ✅ Vor jedem Call prüft der Server über `GET /api/v1/models`, ob das Modell beim Account verfügbar ist. Modelle mit 404/500 werden für einige Minuten automatisch gesperrt.
 - 💳 Wenn kein gesundes Free-Modell verfügbar ist oder ein 429 zurückkommt, wird automatisch auf Premium-Fallbacks (Claude, Codestral, GPT-5.1 Codex) gewechselt.
+- 🚫 Sobald die kostenlosen Modelle dauerhaft fehlschlagen (z. B. Quota aufgebraucht oder Provider-404), werden sie für den gesamten Prozess deaktiviert – alle weiteren Aufrufe laufen direkt über die kostenpflichtigen Advisors.
 
 ```mermaid
 sequenceDiagram

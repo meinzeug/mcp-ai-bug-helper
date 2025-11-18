@@ -5,15 +5,15 @@
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc --pretty",
-    "postbuild": "chmod +x dist/server.js || true",
+    "postbuild": "chmod +x dist/server.js dist/cli.js || true",
     "dev": "tsx src/server.ts",
     "scenarios": "tsx scripts/run-scenarios.ts",
-    "start": "node dist/server.js",
+    "start": "node dist/cli.js",
     "typecheck": "tsc --noEmit --pretty",
     "prepublishOnly": "npm run build"
   },
   "bin": {
-    "mcp-ai-bug-helper": "dist/server.js"
+    "mcp-ai-bug-helper": "dist/cli.js"
   },
   "repository": {
     "type": "git",

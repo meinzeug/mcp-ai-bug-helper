@@ -11,6 +11,7 @@ import { RateLimitError, OpenRouterError } from './errors.js';
 
 export class CodingAdvisorCoordinator {
   private readonly cooldowns = new Map<string, number>();
+  private freeDisabled = false;
 
   constructor(private readonly client: OpenRouterClient) {}
 
@@ -19,7 +20,9 @@ export class CodingAdvisorCoordinator {
     const lineup = buildModelLineup(input);
     let fallbackTriggered = false;
 
-    for (const spec of lineup.free) {
+    const freePool = this.freeDisabled ? [] : lineup.free;
+
+    for (const spec of freePool) {
       if (answers.length >= 3) break;
       const outcome = await this.tryModel(spec, lineup.tags, input, false);
       if (outcome?.type === 'rate-limit') {
@@ -28,6 +31,9 @@ export class CodingAdvisorCoordinator {
       }
       if (outcome?.result) {
         answers.push(outcome.result);
+      }
+      if (this.freeDisabled) {
+        break;
       }
     }
 
@@ -91,11 +97,17 @@ export class CodingAdvisorCoordinator {
       return { result, type: 'ok' };
     } catch (error) {
       if (error instanceof RateLimitError) {
+        if (spec.isFree) {
+          this.disableFreeModels('rate limit reached');
+        }
         this.cooldownModel(spec.id, 90 * 1000);
         return { type: 'rate-limit' };
       }
 
       if (error instanceof OpenRouterError) {
+        if (spec.isFree) {
+          this.disableFreeModels(`provider error (${error.status ?? 'unknown'})`);
+        }
         this.cooldownModel(spec.id, 5 * 60 * 1000);
         return null;
       }
@@ -123,6 +135,16 @@ export class CodingAdvisorCoordinator {
 
   private cooldownModel(modelId: string, durationMs: number): void {
     this.cooldowns.set(modelId, Date.now() + durationMs);
+  }
+
+  private disableFreeModels(reason: string): void {
+    if (this.freeDisabled) {
+      return;
+    }
+    this.freeDisabled = true;
+    console.warn(
+      `[coding-advisors] Free OpenRouter advisors disabled (${reason}). Switching to paid models only until process restart.`
+    );
   }
 }
 
