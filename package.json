@@ -1,0 +1,45 @@
+{
+  "name": "@meinzeug/mcp-ai-bug-helper",
+  "version": "1.0.0",
+  "description": "MCP server that routes tough coding questions through OpenRouter coding advisors.",
+  "main": "dist/server.js",
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "tsc --pretty",
+    "postbuild": "chmod +x dist/server.js || true",
+    "dev": "ts-node --files src/server.ts",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit --pretty"
+  },
+  "bin": {
+    "mcp-ai-bug-helper": "dist/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/meinzeug/mcp-ai-bug-helper.git"
+  },
+  "keywords": [
+    "mcp",
+    "codex",
+    "openrouter",
+    "cli",
+    "llm"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/meinzeug/mcp-ai-bug-helper/issues"
+  },
+  "homepage": "https://github.com/meinzeug/mcp-ai-bug-helper#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.22.0",
+    "dotenv": "^17.2.3",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
