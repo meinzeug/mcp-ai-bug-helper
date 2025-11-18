@@ -63,6 +63,8 @@ npm run dev
 
 > 💡 `npm run dev` startet den MCP-Server via `ts-node` und streamt Logs – perfekt zum Debuggen.
 
+> 📦 Veröffentlichtes Paket: [`@meinzeug/mcp-ai-bug-helper`](https://www.npmjs.com/package/@meinzeug/mcp-ai-bug-helper) – überprüfbar mit `npm view @meinzeug/mcp-ai-bug-helper`.
+
 ---
 
 ## 🛠️ Tool-Flow
