@@ -127,6 +127,22 @@ sequenceDiagram
 - **Claude Code:** Anthropic beschreibt in [den Claude-Code-MCP-Docs](https://docs.claude.com/en/docs/claude-code/mcp) exakt den gleichen stdio-/HTTP-Mechanismus. Du kannst denselben Befehl wie oben benutzen (oder einen `claude.json`-Eintrag), und die Tools erscheinen dort unter `/mcp` bzw. `@ask-coding-advisors`.
 - **Sonstige IDEs:** Jede Umgebung, die MCP spricht (z. B. VS Code-Extensions, Cursor, Eigene Agenten), kann denselben Server starten. Wichtig ist nur, dass `OPENROUTER_API_KEY` gesetzt ist und der Prozess via stdio oder TCP erreichbar ist.
 
+#### Schnellbefehle für gängige Clients
+- **Amp CLI** – `amp mcp add coding-advisors -- npx @meinzeug/mcp-ai-bug-helper`
+- **Claude Code CLI** – `claude mcp add coding-advisors npx @meinzeug/mcp-ai-bug-helper`
+- **Codex CLI** – `codex mcp add coding-advisors --env "OPENROUTER_API_KEY=sk-or-v1-..." npx @meinzeug/mcp-ai-bug-helper`
+- **Copilot CLI** – `/mcp add` → Name `coding-advisors`, Command `npx @meinzeug/mcp-ai-bug-helper`
+- **VS Code / Copilot** – `code --add-mcp '{"name":"coding-advisors","command":"npx","args":["@meinzeug/mcp-ai-bug-helper"]}'`
+- **Cursor / Amp / Cline / Kiro / Qoder / Warp / Windsurf / JetBrains AI / Gemini / Droid (Factory CLI)** – überall einfach denselben Command + Name übernehmen; falls der Client eine Konfigurationsdatei verlangt, setzt du `command = "npx"`, `args = ["@meinzeug/mcp-ai-bug-helper"]` und ergänzt `OPENROUTER_API_KEY` in der jeweiligen `env`-Sektion. Mobile Beispiele findest du in deren MCP-Handbüchern (Links: [Amp](https://ampcode.com/manual#mcp), [Cline](https://docs.cline.bot/mcp/configuring-mcp-servers), [Gemini CLI](https://ai.google.dev/gemini-code-assist/mcp), [JetBrains AI Assistant](https://www.jetbrains.com/help/idea/ai-assistant.html)).
+- **Windows 11 & Codex** – falls `npx` Chrome oder Node aus `Program Files` laden muss, ergänze in `~/.codex/config.toml`:
+  ```toml
+  [mcp_servers.coding-advisors]
+  command = "cmd"
+  args = ["/c", "npx", "@meinzeug/mcp-ai-bug-helper"]
+  env = { SystemRoot="C:\\Windows", PROGRAMFILES="C:\\Program Files", OPENROUTER_API_KEY="sk-or-v1-..." }
+  startup_timeout_ms = 20_000
+  ```
+
 ---
 
 ## ⚙️ Konfiguration
