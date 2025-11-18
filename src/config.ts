@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 
-dotenv.config();
+if (!process.env.OPENROUTER_API_KEY) {
+  dotenv.config();
+}
 
 const APP_NAME = process.env.OPENROUTER_APP_NAME ?? 'MCP AI Bug Helper';
 const REFERER = process.env.OPENROUTER_REFERRER ?? 'https://github.com/meinzeug/mcp-ai-bug-helper';
