@@ -1,94 +1,129 @@
-import { FREE_CODING_MODELS, PAID_FALLBACK_MODELS } from './modelCatalog.js';
 import { OpenRouterClient } from './openrouterClient.js';
-import type { ToolInput, AdvisorBatchResult, AdvisorModelSpec, AdvisorCallResult } from './types.js';
-import { RateLimitError } from './errors.js';
+import { buildModelLineup } from './modelRouter.js';
+import type {
+  ToolInput,
+  AdvisorBatchResult,
+  AdvisorModelSpec,
+  AdvisorCallResult,
+  ScenarioTag,
+} from './types.js';
+import { RateLimitError, OpenRouterError } from './errors.js';
 
 export class CodingAdvisorCoordinator {
-  private fallbackPointer = 0;
+  private readonly cooldowns = new Map<string, number>();
 
   constructor(private readonly client: OpenRouterClient) {}
 
   async advise(input: ToolInput): Promise<AdvisorBatchResult> {
     const answers: AdvisorCallResult[] = [];
+    const lineup = buildModelLineup(input);
     let fallbackTriggered = false;
-    let fallbackMode = false;
 
-    for (const spec of FREE_CODING_MODELS) {
-      if (!fallbackMode) {
-        try {
-          const answer = await this.queryModel(spec, input, false);
-          answers.push(answer);
-          continue;
-        } catch (error) {
-          if (error instanceof RateLimitError) {
-            fallbackMode = true;
-            fallbackTriggered = true;
-          } else {
-            throw error;
-          }
+    for (const spec of lineup.free) {
+      if (answers.length >= 3) break;
+      const outcome = await this.tryModel(spec, lineup.tags, input, false);
+      if (outcome?.type === 'rate-limit') {
+        fallbackTriggered = true;
+        break;
+      }
+      if (outcome?.result) {
+        answers.push(outcome.result);
+      }
+    }
+
+    if (answers.length < 3) {
+      fallbackTriggered = true;
+      for (const spec of lineup.paid) {
+        if (answers.length >= 3) break;
+        const outcome = await this.tryModel(spec, lineup.tags, input, true);
+        if (outcome?.result) {
+          answers.push(outcome.result);
         }
       }
+    }
 
-      const fallbackAnswer = await this.queryNextFallback(input);
-      answers.push(fallbackAnswer);
+    if (answers.length < 3) {
+      throw new Error('Keine gesunden OpenRouter-Modelle verfügbar – bitte später erneut versuchen.');
     }
 
     return { answers, fallbackTriggered };
   }
 
-  private async queryModel(
+  private async tryModel(
     spec: AdvisorModelSpec,
+    scenarioTags: ScenarioTag[],
     input: ToolInput,
     usedFallback: boolean
-  ): Promise<AdvisorCallResult> {
+  ): Promise<{ result?: AdvisorCallResult; type: 'ok' | 'rate-limit' } | null> {
+    if (this.isCoolingDown(spec.id)) {
+      return null;
+    }
+
+    const available = await this.safeEnsureAvailability(spec.id);
+    if (!available) {
+      this.cooldownModel(spec.id, 10 * 60 * 1000);
+      return null;
+    }
+
     const startedAt = Date.now();
     const chatPayload =
       typeof input.context === 'string' && input.context.length > 0
         ? { question: input.question, context: input.context }
         : { question: input.question };
 
-    const chat = await this.client.chat(spec.id, chatPayload);
+    try {
+      const chat = await this.client.chat(spec.id, chatPayload);
+      const result: AdvisorCallResult = {
+        modelId: spec.id,
+        modelLabel: spec.label,
+        focus: spec.focus,
+        isFree: spec.isFree,
+        scenarioTag: deriveScenarioTag(scenarioTags, spec),
+        usedFallback,
+        responseText: chat.text?.trim() || '(empty response)',
+        latencyMs: Date.now() - startedAt,
+      };
 
-    const result: AdvisorCallResult = {
-      modelId: spec.id,
-      modelLabel: spec.label,
-      focus: spec.focus,
-      isFree: spec.isFree,
-      usedFallback,
-      responseText: chat.text?.trim() || '(empty response)',
-      latencyMs: Date.now() - startedAt,
-    };
+      if (chat.usage) {
+        result.usage = chat.usage;
+      }
 
-    if (chat.usage) {
-      result.usage = chat.usage;
+      return { result, type: 'ok' };
+    } catch (error) {
+      if (error instanceof RateLimitError) {
+        this.cooldownModel(spec.id, 90 * 1000);
+        return { type: 'rate-limit' };
+      }
+
+      if (error instanceof OpenRouterError) {
+        this.cooldownModel(spec.id, 5 * 60 * 1000);
+        return null;
+      }
+
+      throw error;
     }
-
-    return result;
   }
 
-  private async queryNextFallback(input: ToolInput): Promise<AdvisorCallResult> {
-    const maxAttempts = PAID_FALLBACK_MODELS.length;
-    if (maxAttempts === 0) {
-      throw new RateLimitError('No fallback models configured.');
+  private async safeEnsureAvailability(modelId: string): Promise<boolean> {
+    try {
+      return await this.client.ensureModelAvailable(modelId);
+    } catch (error) {
+      console.warn(`Failed to check availability for ${modelId}`, error);
+      return false;
     }
-
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const spec = PAID_FALLBACK_MODELS[(this.fallbackPointer + attempt) % maxAttempts];
-      if (!spec) {
-        continue;
-      }
-      try {
-        const answer = await this.queryModel(spec, input, true);
-        this.fallbackPointer = (this.fallbackPointer + attempt + 1) % maxAttempts;
-        return answer;
-      } catch (error) {
-        if (error instanceof RateLimitError) {
-          continue;
-        }
-        throw error;
-      }
-    }
-
-    throw new RateLimitError('Every fallback model is currently rate limited.');
   }
+
+  private isCoolingDown(modelId: string): boolean {
+    const until = this.cooldowns.get(modelId);
+    return typeof until === 'number' && until > Date.now();
+  }
+
+  private cooldownModel(modelId: string, durationMs: number): void {
+    this.cooldowns.set(modelId, Date.now() + durationMs);
+  }
+}
+
+function deriveScenarioTag(tags: ScenarioTag[], spec: AdvisorModelSpec): ScenarioTag {
+  const match = tags.find((tag) => spec.strengths.includes(tag));
+  return match ?? 'general';
 }

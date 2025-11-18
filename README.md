@@ -76,6 +76,13 @@ npm run dev
 | 🚨 Fallback-Trigger | Erstes HTTP 429 schaltet auf Premium-Rotation: `anthropic/claude-3.7-sonnet`, `mistralai/codestral-2508`. |
 | 📊 Response-Payload | Drei unabhängige Antworten + Latency + Token-Stats + Hinweis, ob Fallback aktiv war. |
 
+### Adaptive Modellwahl
+
+- 🔎 Jeder Prompt wird analysiert (Keywords für React/Go/infra/LLM etc.), daraus entstehen `ScenarioTags` (z. B. `frontend`, `node`, `go`).
+- 🤖 Für jeden Tag gibt es passende Modelle mit hinterlegten Stärken und Zuverlässigkeitsskalen (platinum/gold/silver).
+- ✅ Vor jedem Call prüft der Server über `GET /api/v1/models`, ob das Modell beim Account verfügbar ist. Modelle mit 404/500 werden für einige Minuten automatisch gesperrt.
+- 💳 Wenn kein gesundes Free-Modell verfügbar ist oder ein 429 zurückkommt, wird automatisch auf Premium-Fallbacks (Claude, Codestral, GPT-5.1 Codex) gewechselt.
+
 ```mermaid
 sequenceDiagram
     participant Codex
@@ -155,6 +162,7 @@ src/
 | `npm run build` | TypeScript Build + `.d.ts` + Sourcemaps + `postbuild chmod`. |
 | `npm run typecheck` | Schneller TS-Check ohne Emit. |
 | `npm start` | Führt das gebaute CLI (`dist/server.js`). |
+| `npm run scenarios` | Führt reale OpenRouter-Tests auf mehreren Debug-Szenarien aus (filterbar via `SCENARIO=react`). |
 
 > Bei Veröffentlichung sorgt `npm publish` automatisch für frische Builds (via `prepare`).
 

@@ -61,7 +61,9 @@ async function main() {
 
       batch.answers.forEach((answer, idx) => {
         console.log(`\nAdvisor ${idx + 1}: ${answer.modelLabel}`);
-        console.log(`Tier: ${answer.isFree ? 'free' : 'paid'} | Latency: ${answer.latencyMs}ms`);
+        console.log(
+          `Tier: ${answer.isFree ? 'free' : 'paid'} | Latency: ${answer.latencyMs}ms | Tag: ${answer.scenarioTag}`
+        );
         if (answer.usage) {
           console.log(
             `Usage: prompt=${answer.usage.promptTokens ?? 'n/a'}, completion=${answer.usage.completionTokens ?? 'n/a'}`

@@ -46,5 +46,7 @@
     "resolveJsonModule": true,
     "moduleResolution": "NodeNext",
     "types": ["node"]
-  }
+  },
+  "include": ["src"],
+  "exclude": ["dist", "node_modules", "scripts"]
 }

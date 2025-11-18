@@ -19,6 +19,8 @@ export interface ChatResult {
 
 export class OpenRouterClient {
   private readonly baseUrl = 'https://openrouter.ai/api/v1';
+  private modelCache?: { ids: Set<string>; fetchedAt: number };
+  private readonly modelCacheTtlMs = 5 * 60 * 1000;
 
   constructor(
     private readonly apiKey: string,
@@ -102,6 +104,35 @@ export class OpenRouterClient {
       },
       raw: data,
     };
+  }
+
+  async ensureModelAvailable(modelId: string): Promise<boolean> {
+    const cache = await this.getModelList();
+    return cache.has(modelId);
+  }
+
+  private async getModelList(): Promise<Set<string>> {
+    const now = Date.now();
+    if (this.modelCache && now - this.modelCache.fetchedAt < this.modelCacheTtlMs) {
+      return this.modelCache.ids;
+    }
+
+    const response = await fetch(`${this.baseUrl}/models`, {
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+        'HTTP-Referer': this.metadata.referer,
+        'X-Title': this.metadata.appName,
+      },
+    });
+
+    if (!response.ok) {
+      throw new OpenRouterError(`Failed to list OpenRouter models (${response.status})`, response.status);
+    }
+
+    const payload = (await response.json()) as { data?: { id: string }[] };
+    const ids = new Set<string>((payload.data ?? []).map((entry) => entry.id));
+    this.modelCache = { ids, fetchedAt: now };
+    return ids;
   }
 }
 

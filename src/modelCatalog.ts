@@ -1,37 +1,77 @@
 import type { AdvisorModelSpec } from './types.js';
 
-export const FREE_CODING_MODELS: AdvisorModelSpec[] = [
+export const MODEL_LIBRARY: AdvisorModelSpec[] = [
   {
     id: 'kwaipilot/kat-coder-pro:free',
     label: 'Kat Coder Pro (free tier)',
-    focus: 'Chinese coding-specialist tuned for debugging suggestions and refactors.',
+    focus: 'Reasoning-heavy multilingual coder with strong JS/Node/React support.',
     isFree: true,
+    vendor: 'Kwaipilot',
+    reliability: 'gold',
+    maxContextTokens: 131072,
+    strengths: ['frontend', 'node', 'general'],
   },
   {
     id: 'openrouter/sherlock-dash-alpha',
     label: 'Sherlock Dash Alpha',
-    focus: 'Fast diagnostics-focused model optimised for code troubleshooting.',
+    focus: 'Speed-focused troubleshooting assistant for backend and infra issues.',
     isFree: true,
+    vendor: 'OpenRouter',
+    reliability: 'gold',
+    maxContextTokens: 131072,
+    strengths: ['infra', 'memory', 'general'],
   },
   {
     id: 'openrouter/sherlock-think-alpha',
     label: 'Sherlock Think Alpha',
-    focus: 'Deliberative debugging agent that produces longer reasoning chains.',
+    focus: 'Deliberative debugging model that produces step-by-step remediation plans.',
     isFree: true,
+    vendor: 'OpenRouter',
+    reliability: 'gold',
+    maxContextTokens: 200000,
+    strengths: ['frontend', 'memory', 'ai', 'general'],
   },
-];
-
-export const PAID_FALLBACK_MODELS: AdvisorModelSpec[] = [
+  {
+    id: 'tngtech/deepseek-r1t2-chimera:free',
+    label: 'DeepSeek R1T2 Chimera (free tier)',
+    focus: 'Chain-of-thought heavy coder suited for Go/Rust/perf triage.',
+    isFree: true,
+    vendor: 'TNGTech',
+    reliability: 'silver',
+    maxContextTokens: 131072,
+    strengths: ['go', 'memory', 'infra'],
+  },
   {
     id: 'anthropic/claude-3.7-sonnet',
     label: 'Claude 3.7 Sonnet',
-    focus: 'Anthropic flagship coding-capable model for premium fallbacks.',
+    focus: 'Premium reasoning + coding copilot with strong enterprise safeguards.',
     isFree: false,
+    vendor: 'Anthropic',
+    reliability: 'platinum',
+    maxContextTokens: 200000,
+    strengths: ['frontend', 'node', 'go', 'memory', 'ai', 'infra', 'general'],
   },
   {
     id: 'mistralai/codestral-2508',
     label: 'Codestral 25.08',
-    focus: 'Mistral’s production-grade code generation model.',
+    focus: 'High-throughput coding model tuned for refactors and static analysis.',
     isFree: false,
+    vendor: 'Mistral AI',
+    reliability: 'platinum',
+    maxContextTokens: 128000,
+    strengths: ['frontend', 'node', 'memory', 'general'],
+  },
+  {
+    id: 'openai/gpt-5.1-codex',
+    label: 'GPT 5.1 Codex',
+    focus: 'OpenAI flagship coding stack with deep ecosystem knowledge.',
+    isFree: false,
+    vendor: 'OpenAI',
+    reliability: 'platinum',
+    maxContextTokens: 200000,
+    strengths: ['frontend', 'node', 'ai', 'infra', 'general'],
   },
 ];
+
+export const FREE_CODING_MODELS = MODEL_LIBRARY.filter((model) => model.isFree);
+export const PAID_FALLBACK_MODELS = MODEL_LIBRARY.filter((model) => !model.isFree);
