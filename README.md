@@ -105,10 +105,9 @@ sequenceDiagram
 
 1. **Server in Codex registrieren**
    ```bash
-   codex mcp add coding-advisors \
-     --cmd "npx" \
-     --args "@meinzeug/mcp-ai-bug-helper" \
-     --env "OPENROUTER_API_KEY=${OPENROUTER_API_KEY}"
+   codex mcp add --env "OPENROUTER_API_KEY=${OPENROUTER_API_KEY}" \
+     "npx @meinzeug/mcp-ai-bug-helper" \
+     coding-advisors
    ```
 2. **Verifizieren**
    ```bash
