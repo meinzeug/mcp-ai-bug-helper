@@ -108,6 +108,9 @@ sequenceDiagram
    codex mcp add coding-advisors \
      --env "OPENROUTER_API_KEY=sk-or-v1-..." \
      npx @meinzeug/mcp-ai-bug-helper
+
+   # Syntax entspricht auch anderen MCP-Beispielen wie
+   # codex mcp add chrome-devtools -- npx chrome-devtools-mcp@latest
    ```
 2. **Verifizieren**
    ```bash
