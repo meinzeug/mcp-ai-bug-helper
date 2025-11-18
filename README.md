@@ -120,6 +120,11 @@ sequenceDiagram
 
 > 📎 Wenn du lieber aus dem Repo startest: `--cmd "node" --args "dist/server.js"` verwenden.
 
+### Andere MCP-Clients
+
+- **Claude Code:** Anthropic beschreibt in [den Claude-Code-MCP-Docs](https://docs.claude.com/en/docs/claude-code/mcp) exakt den gleichen stdio-/HTTP-Mechanismus. Du kannst denselben Befehl wie oben benutzen (oder einen `claude.json`-Eintrag), und die Tools erscheinen dort unter `/mcp` bzw. `@ask-coding-advisors`.
+- **Sonstige IDEs:** Jede Umgebung, die MCP spricht (z. B. VS Code-Extensions, Cursor, Eigene Agenten), kann denselben Server starten. Wichtig ist nur, dass `OPENROUTER_API_KEY` gesetzt ist und der Prozess via stdio oder TCP erreichbar ist.
+
 ---
 
 ## ⚙️ Konfiguration
