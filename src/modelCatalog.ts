@@ -2,21 +2,21 @@ import type { AdvisorModelSpec } from './types.js';
 
 export const FREE_CODING_MODELS: AdvisorModelSpec[] = [
   {
-    id: 'qwen/qwen3-coder:free',
-    label: 'Qwen 3 Coder (free tier)',
-    focus: 'Large multilingual coding specialist tuned for debugging and refactoring.',
+    id: 'kwaipilot/kat-coder-pro:free',
+    label: 'Kat Coder Pro (free tier)',
+    focus: 'Chinese coding-specialist tuned for debugging suggestions and refactors.',
     isFree: true,
   },
   {
-    id: 'qwen/qwen-2.5-coder-32b-instruct:free',
-    label: 'Qwen 2.5 Coder 32B Instruct (free tier)',
-    focus: 'Precision-focused programming assistant optimized for step-by-step reasoning.',
+    id: 'openrouter/sherlock-dash-alpha',
+    label: 'Sherlock Dash Alpha',
+    focus: 'Fast diagnostics-focused model optimised for code troubleshooting.',
     isFree: true,
   },
   {
-    id: 'agentica-org/deepcoder-14b-preview:free',
-    label: 'Agentica DeepCoder 14B Preview (free tier)',
-    focus: 'Lean reasoning-first code generation preview tuned for bug triage.',
+    id: 'openrouter/sherlock-think-alpha',
+    label: 'Sherlock Think Alpha',
+    focus: 'Deliberative debugging agent that produces longer reasoning chains.',
     isFree: true,
   },
 ];

@@ -30,18 +30,26 @@ export class OpenRouterClient {
   }
 
   async chat(model: string, opts: ChatOptions): Promise<ChatResult> {
-    const systemPrompt =
-      'You are a meticulous senior software engineer who explains code reasoning, debugging steps, and trade-offs with actionable detail.';
+    const systemPrompt = [
+      'You are a veteran debugging partner for complex production systems.',
+      'Goals:',
+      '1. Identify the most probable root cause using the provided details.',
+      '2. Propose concrete code-level fixes or experiments (assume editor + shell access).',
+      '3. Explain trade-offs, risks, and validation steps.',
+      '4. Suggest log/telemetry probes when evidence is missing.',
+      'Return Markdown with sections: Summary, Root Cause, Fix Plan, Validation, Follow-ups.',
+      'Use concise bullets, but include code snippets or shell commands where they unblock the investigation.',
+    ].join(' ');
 
-    const userLines = [
-      `Question: ${opts.question.trim()}`,
-    ];
+    const userLines = [`### Primary bug\n${opts.question.trim()}`];
 
     if (opts.context) {
-      userLines.push('\nAdditional context:\n' + opts.context.trim());
+      userLines.push('\n### Additional context\n' + opts.context.trim());
     }
 
-    userLines.push('\nWhen relevant, propose next debugging actions or references.');
+    userLines.push(
+      '\n### Output expectations\n- Emphasise reproducible steps and failing assumptions.\n- Include at least one validation or logging idea.\n- Mention relevant docs/packages if they help.'
+    );
 
     const payload = {
       model,

@@ -8,6 +8,7 @@
     "build": "tsc --pretty",
     "postbuild": "chmod +x dist/server.js || true",
     "dev": "tsx src/server.ts",
+    "scenarios": "tsx scripts/run-scenarios.ts",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit --pretty"
   },
