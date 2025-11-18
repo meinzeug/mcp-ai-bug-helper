@@ -108,8 +108,11 @@ export class CodingAdvisorCoordinator {
     try {
       return await this.client.ensureModelAvailable(modelId);
     } catch (error) {
-      console.warn(`Failed to check availability for ${modelId}`, error);
-      return false;
+      console.warn(
+        `Failed to verify OpenRouter availability for ${modelId}. Assuming it is reachable.`,
+        error
+      );
+      return true;
     }
   }
 
