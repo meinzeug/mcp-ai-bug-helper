@@ -1,6 +1,5 @@
-import dotenv from 'dotenv';
-
 if (!process.env.OPENROUTER_API_KEY) {
+  const dotenv = await import('dotenv');
   dotenv.config();
 }
 
